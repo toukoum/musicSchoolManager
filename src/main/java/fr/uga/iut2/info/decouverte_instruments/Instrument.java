@@ -34,4 +34,8 @@ public class Instrument implements Serializable {
     public String toString() {
         return this.nom;
     }
+
+    public void addSeance(Seance seance) {
+        this.seances.add(seance);
+    }
 }

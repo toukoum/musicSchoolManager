@@ -322,8 +322,11 @@ public final class CLI {
         System.out.println("===== Liste des inscriptions par instrument =====");
         for (Instrument ins : instruments) {
             System.out.println("· " + ins);
-
-            // TODO: à compléter
+            //parcourir les séance de l'instrument
+            for (Seance seance : ins.getSeances()) {
+                // afficher les séances de l'instrument en détail avec le jour et l'enfant
+                System.out.println("   - [" + seance.getJour() + "] " + seance.getEnfant());
+            }
 
             System.out.println();
         }
@@ -340,8 +343,11 @@ public final class CLI {
         System.out.println("===== Liste des inscriptions par enfant =====");
         for (Enfant enf : enfants) {
             System.out.println("· " + enf);
-
-            // TODO: à compléter
+            //parcourir les séance de l'enfant
+            for (Seance seance : enf.getSeances()) {
+                // afficher les séances de l'enfant en détail avec le jour et l'instrument
+                System.out.println("   - [" + seance.getJour() + "] " + seance.getInstrument());
+            }
 
             System.out.println();
         }

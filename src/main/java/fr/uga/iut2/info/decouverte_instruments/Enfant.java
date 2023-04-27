@@ -38,12 +38,17 @@ public class Enfant implements Serializable {
         return this.nom;
     }
 
-    public Collection<Instrument> getInstruments() {
+    public Collection<String> getInstruments() {
         // retourne le nom des instruments de l'enfant
-        ArrayList<Instrument> instruments = new ArrayList<>();
+        ArrayList<String> instruments = new ArrayList<>();
         for (Seance seance : seances) {
             instruments.add(seance.getInstrument());
         }
         return instruments;
+    }
+
+    public void addSeance(Seance seance) {
+        this.seances.add(seance);
+        this.nbSeances++;
     }
 }

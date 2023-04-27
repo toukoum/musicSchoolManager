@@ -20,16 +20,16 @@ public class Seance implements Serializable {
         this.instrument = instrument;
     }
 
-    public Jour getJour() {
-        return jour;
+    public String getJour() {
+        return jour.toString();
     }
 
-    public Instrument getInstrument() {
-        return instrument;
+    public String getInstrument() {
+        return instrument.getInstrument();
     }
 
-    public Enfant getEnfant() {
-        return enfant;
+    public String getEnfant() {
+        return enfant.getNom();
     }
 
 }

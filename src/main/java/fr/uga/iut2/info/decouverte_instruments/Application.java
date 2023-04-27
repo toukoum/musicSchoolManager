@@ -1,10 +1,7 @@
 package fr.uga.iut2.info.decouverte_instruments;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  *
@@ -76,8 +73,9 @@ public class Application implements Serializable {
     }
 
     private void ajouterInstrumentEnfant() {
+
         // Le système propose à l’utilisateur·rice les noms des enfants enregistrés qui peuvent
-        //encore s’inscrire à un instrument (ce sont les enfants pour lesquels il reste au moins
+        //encore s’inscrire à un instrument (nfants pour lesquels il reste au moins
         //une séance de libre, et qui ne sont pas déjà inscrits à tous les instruments) ;
         Scanner scanner = new Scanner(System.in);
         for (Enfant enfant : enfants.values()) {
@@ -88,15 +86,17 @@ public class Application implements Serializable {
 
 
         //L’utilisateur·rice saisit le nom de l’enfant ;
-        System.out.println("Choisissez un enfant");
+        System.out.print("Saisir le nom d'un enfant : ");
         String nomEnfant = scanner.nextLine();
 
 //        Le système vérifie qu’il existe un enfant de ce nom et qu’elle·il n’est pas déjà inscrit·e
 //        à trois séances de découverte ;
         for (Enfant enfant : enfants.values()) {
-            if (enfant.getNom().equals(nomEnfant)) {
+            if (enfant.getNom().equalsIgnoreCase(nomEnfant)) {
+                System.out.println("L'enfant " + enfant.getNom() + " existe bien !");
                 if (enfant.getNbSeances() == 3) {
                     System.out.println("L'enfant est déjà inscrit à 3 séances");
+                    return;
                 }
             }
         }
@@ -104,30 +104,39 @@ public class Application implements Serializable {
 //        Le système propose à l’utilisateur·rice les noms des instruments pour lesquels l’enfant
 //        n’est pas encore inscrit ;
         for (Instrument instrument : instruments.values()) {
-            if (!enfants.get(nomEnfant).getInstruments().contains(instrument)) {
+            if (!enfants.get(nomEnfant).getInstruments().contains(instrument.getNom())) {
                 System.out.println(instrument.getNom());
             }
         }
 
         //L’utilisateur·rice saisit le nom de l’instrument ;
-        System.out.println("Choisissez un instrument");
+        System.out.print("Choisissez un instrument : ");
         String nomInstrument = scanner.nextLine();
 
 //        Le système vérifie que l’instrument existe et que l’enfant n’est pas déjà inscrit à une
 //        séance de cet instrument ;
         for (Instrument instrument : instruments.values()) {
-            if (instrument.getNom().equals(nomInstrument)) {
-                if (enfants.get(nomEnfant).getInstruments().contains(instrument)) {
+            if (instrument.getNom().equalsIgnoreCase(nomInstrument)) {
+                System.out.println("L'instrument " + instrument.getNom() + " existe bien !");
+                if (enfants.get(nomEnfant).getInstruments().contains(instrument.getNom())) {
                     System.out.println("L'enfant est déjà inscrit à cet instrument");
+                    return;
                 }
             }
         }
 
 //        Le système propose les jours d’inscription (mercredi, vendredi ou samedi) encore possibles pour l’enfant ;
+        System.out.println("Jours d'inscription encore possible pour " + nomEnfant + " : ");
         for (Enfant enfant : enfants.values()) {
-            if (enfant.getNom().equals(nomEnfant)) {
-                for (int i = 0; i < enfant.getNbSeances(); i++) {
-                    System.out.println(enfant.getSeances().get(i).getJour());
+            // pour l'enfant en question
+            if (enfant.getNom().equalsIgnoreCase(nomEnfant)) {
+                // je savais pas trop comment faire pour afficher les jours restants # méthode de galérien
+                ArrayList<String> jours = new ArrayList<>(Arrays.asList("mercredi", "vendredi", "samedi"));
+                for (Seance seance : enfant.getSeances()) {
+                    jours.remove(seance.getJour());
+                }
+                for (String jour : jours) {
+                    System.out.println("  - " + jour);
                 }
             }
         }
@@ -136,18 +145,46 @@ public class Application implements Serializable {
         System.out.println("Choisissez un jour");
         String jour = scanner.nextLine();
 
-//        Le système vérifie que ce jour existe et que l’enfant n’a pas déjà une séance ce même
-//        jour
+//        Le système vérifie que ce jour existe et que l’enfant n’a pas déjà une séance ce même jour
+        // verification que le jour existe
+        for (Jour jour_i : Jour.values()) {
+            if (jour_i.toString().equalsIgnoreCase(jour)) {
+                System.out.println("Le jour " + jour + " existe bien !");
+            }
+        }
+        // vérif que l'enfant n'a pas déjà une séance ce même jour
         for (Enfant enfant : enfants.values()) {
-            if (enfant.getNom().equals(nomEnfant)) {
-                for (int i = 0; i < enfant.getNbSeances(); i++) {
-                    if (enfant.getSeances().get(i).getJour().equals(jour)) {
-                        System.out.println("L'enfant a déjà une séance ce jour");
+            if (enfant.getNom().equalsIgnoreCase(nomEnfant)) {
+                for (Seance seance : enfant.getSeances()) {
+                    if (seance.getJour().equalsIgnoreCase(jour)) {
+                        System.out.println("L'enfant a déjà une séance ce jour là");
+                        return;
                     }
                 }
             }
         }
 
+//      On créer une nouvelle séance avec les infos récupérées
+        Jour jourEnum = Jour.valueOf(jour.toUpperCase());
+        Enfant enfant = enfants.get(nomEnfant);
+        Instrument instrument = instruments.get(nomInstrument);
+
+        Seance seance = new Seance(jourEnum, enfant, instrument);
+
+//        On ajoute une séance à l'enfant et à l'instrument
+        for (Enfant enf : enfants.values()) {
+            if (enf.getNom().equalsIgnoreCase(nomEnfant)) {
+                enf.addSeance(seance);
+            }
+        }
+
+        for (Instrument instr : instruments.values()) {
+            if (instr.getNom().equalsIgnoreCase(nomInstrument)) {
+                instr.addSeance(seance);
+            }
+        }
+
+        System.out.println("L'enfant " + nomEnfant + " est bien inscrit à la séance de " + nomInstrument + " le " + jour);
 
     }
 
